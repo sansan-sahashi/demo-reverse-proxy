@@ -3,12 +3,20 @@ version: "3.1"
 services:
   proxy:
     image: 'nginx:latest' 
-    command: "service nginx start"
+    command: >
+      /bin/sh -c
+      "envsubst '
+      $$NGINX_UPSTREAM_HOST
+      '< /etc/nginx/temp/nginx.conf
+      > /etc/nginx/nginx.conf
+      && nginx"
+    environment:
+      - NGINX_UPSTREAM_HOST=""
     ports: 
       - "8080:8080"
     platform: linux/amd64
     volumes:
-      - "./nginx.conf:/etc/nginx/nginx.conf"
+      - ./nginx.conf:/etc/nginx/temp/nginx.conf
     extra_hosts:
       - "localhost:host-gateway"
     
